@@ -69,11 +69,8 @@ var loc_spl = {
   lbs_hour: [''],
   total_hour: [''],
   getCals: function() {
-    console.log('pre-loop');
     for (i = hour_open; i < hour_close; i++) {
-      console.log('loop step 1');
       this.cust_hour[i - hour_open] = calcCustHour(this.customer_min, this.customer_max);
-      console.log('loop step 2');
       this.cup_hour[i - hour_open] = calcCupHour(this.cust_hour[i - hour_open], this.cups_ave);
       this.cup_hour_lb[i - hour_open] = this.cup_hour[i - hour_open] / 20;
       this.lbs_hour[i - hour_open] = calcLbsHour(this.cust_hour[i - hour_open], this.lbs_ave);
@@ -95,7 +92,7 @@ var loc_slu = {
   total_hour: [''],
   getCals: function() {
     for (i = hour_open; i < hour_close; i++) {
-      this.cust_hour[i - hour_open] = calcCustHour(this.customer_min, this.customer_max);\
+      this.cust_hour[i - hour_open] = calcCustHour(this.customer_min, this.customer_max);
       this.cup_hour[i - hour_open] = calcCupHour(this.cust_hour[i - hour_open], this.cups_ave);
       this.cup_hour_lb[i - hour_open] = this.cup_hour[i - hour_open] / 20;
       this.lbs_hour[i - hour_open] = calcLbsHour(this.cust_hour[i - hour_open], this.lbs_ave);
