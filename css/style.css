@@ -1,1 +1,12 @@
 /* CSS file */
+
+table, th, td {
+  border: 1px;
+  border-style: solid;
+  border-color: black;
+  text-align: center;
+}
+
+th, td {
+  width: 150px;
+}
