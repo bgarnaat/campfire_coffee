@@ -1,262 +1,110 @@
 // JavaScript file
+'use strict';
 
+// TWO OPTIONS:
+//    var loc_place1 = [place1, min1, max1, cup_ave1, lb_av1]
+//    var loc_place2 = [place2, min2, max2, cup_ave2, lb_av2]
+//    etc
+// OR
+//    var loc = [place1, place2, place3, etc]
+//    var cust_min = [min1, min2, min3, etc]
+//    var cust_max = [max1, max2, max3, etc]
+//    etc
+//
+// OPTIONS 2 ALLOWS SCALABILITY.
 
-var locations = ['Pike\'s Place Market', 'Capitol Hill', 'Seattle Public Library', 'South Lake Union', 'Sea-Tac Airport', 'Website'];
-var hour_open = 6;  // open at 0600
-var hour_close = 21;  // close at 2100
-var hours = [''];
-
-for (i = hour_open; i < hour_close; i++) {
-  if (i < 12) {
-    hours[i - hour_open] = (i + ':00am');
-  } else if (i === 12) {
-    hours[i - hour_open] = (i + ' noon');
-  } else {
-    hours[i - hour_open] = (i + ':00pm');
-  }
+var data = {
+  names: ['Pike\'s Place Market', 'Capitol Hill', 'Seattle Public Library', 'South Lake Union', 'Sea-Tac Airport', 'Website'],
+  name_abbr: ['ppm', 'chl', 'spl', 'slu', 'sea', 'web'],
+  customer_min: [14, 32, 49, 35, 68, 3],
+  customer_max: [55, 48, 75, 88, 124, 6],
+  cup_ave: [1.2, 3.2, 2.6, 1.3, 1.1, 0],
+  lbs_ave: [3.7, 0.4, 0.2, 3.7, 2.7, 6.7]
 }
 
-var loc_ppm = {
-  customer_min: 14,
-  customer_max: 55,
-  cups_ave: 1.2,
-  lbs_ave: 3.7,
-  cust_hour: [''],
-  cup_hour: [''],
-  cup_hour_lb: [''],
-  lbs_hour: [''],
-  total_hour: [''],
-  getCals: function() {
-    for (i = hour_open; i < hour_close; i++) {
-      this.cust_hour[i - hour_open] = calcCustHour(this.customer_min, this.customer_max);
-      this.cup_hour[i - hour_open] = Math.ceil(calcCupHour(this.cust_hour[i - hour_open], this.cups_ave));
-      this.cup_hour_lb[i - hour_open] = Math.ceil(this.cup_hour[i - hour_open] / 20);
-      this.lbs_hour[i - hour_open] = Math.ceil(calcLbsHour(this.cust_hour[i - hour_open], this.lbs_ave));
-      this.total_hour[i - hour_open] = calcTotalHour(this.cust_hour[i - hour_open], this.lbs_hour[i - hour_open]);
+// generate hours block.  veerrrrrryyyy useful block of code.  Trust me.
+var data_time = {
+  hour_open: 6,  // open at 0600
+  hour_close: 21,  // close at 2100
+  hours: [''],
+
+  getHours: function() {
+    for (var i = this.hour_open; i < this.hour_close; i++) {
+      var j = i - this.hour_open;
+      if (i < 12) {
+        data_time.hours[j] = (i + ':00am');
+      } else if (i === 12) {
+        data_time.hours[j] = (i + ' noon');
+      } else {
+        data_time.hours[j] = (i + ':00pm');
+      }
     }
   }
 }
+data_time.getHours();  // call function to generate hours
+
+// declare array object to hold instances of location objects.  This will allow scalability.
+var data_location = [];
+for (var i = 0; i < data.names.length; i++) {
+  // fomat of data = [data.names, data.name_abbr, data.customer_min, data.customer_max, data.cup_ave, data.lbs_ave]
+  data_location[i] = new Location(data.names[i], data.customer_min[i], data.customer_max[i], data.cup_ave[i], data.lbs_ave[i]);
+}
 
 
-var loc_chl = {
-  customer_min: 14,
-  customer_max: 55,
-  cups_ave: 1.2,
-  lbs_ave: 3.7,
-  cust_hour: [''],
-  cup_hour: [''],
-  cup_hour_lb: [''],
-  lbs_hour: [''],
-  total_hour: [''],
-  getCals: function() {
-    for (i = hour_open; i < hour_close; i++) {
-      this.cust_hour[i - hour_open] = calcCustHour(this.customer_min, this.customer_max);
-      this.cup_hour[i - hour_open] = Math.ceil(calcCupHour(this.cust_hour[i - hour_open], this.cups_ave));
-      this.cup_hour_lb[i - hour_open] = Math.ceil(this.cup_hour[i - hour_open] / 20);
-      this.lbs_hour[i - hour_open] = Math.ceil(calcLbsHour(this.cust_hour[i - hour_open], this.lbs_ave));
-      this.total_hour[i - hour_open] = calcTotalHour(this.cust_hour[i - hour_open], this.lbs_hour[i - hour_open]);
+function Location(name, min, max, cup_ave, lbs_ave) {
+  this.loc_name = name;
+  this.customer_min = min;
+  this.customer_max = max;
+  this.cups_ave = cup_ave;
+  this.lbs_ave = lbs_ave;
+  this.cust_hour = [];
+  this.cup_hour = [];
+  this.cup_hour_lb = [];
+  this.lbs_hour = [];
+  this.total_hour = [];
+  this.getCalcs = function() { // call functions declared at end of file.
+    for (var i = data_time.hour_open; i < data_time.hour_close; i++) {
+      var j = i - data_time.hour_open;  // save some typing for each array index...
+
+      this.cust_hour.push(calcCustHour(this.customer_min, this.customer_max));
+      this.cup_hour.push(calcCupHour(this.cust_hour[j], this.cups_ave));
+      this.cup_hour_lb.push(calcCupHourlbs(this.cup_hour[j]));
+      this.lbs_hour.push(calcLbsHour(this.cust_hour[j], this.lbs_ave));
+      this.total_hour.push(calcTotalHour(this.cup_hour_lb[j], this.lbs_hour[j]));
     }
-  }
+  };
+  this.getCalcs();
+}
+
+// create array to store data used to populate table.  this allows program to loop through array vs explicitly call each property.
+var data_loc = [];
+for (i = 0; i < data_location.length; i++) {
+  data_loc[i] = [data_time.hours, data_location[i].total_hour, data_location[i].cust_hour, data_location[i].cup_hour, data_location[i].cup_hour_lb, data_location[i].lbs_hour];
 }
 
 
-var loc_spl = {
-  customer_min: 14,
-  customer_max: 55,
-  cups_ave: 1.2,
-  lbs_ave: 3.7,
-  cust_hour: [''],
-  cup_hour: [''],
-  cup_hour_lb: [''],
-  lbs_hour: [''],
-  total_hour: [''],
-  getCals: function() {
-    for (i = hour_open; i < hour_close; i++) {
-      this.cust_hour[i - hour_open] = calcCustHour(this.customer_min, this.customer_max);
-      this.cup_hour[i - hour_open] = Math.ceil(calcCupHour(this.cust_hour[i - hour_open], this.cups_ave));
-      this.cup_hour_lb[i - hour_open] = Math.ceil(this.cup_hour[i - hour_open] / 20);
-      this.lbs_hour[i - hour_open] = Math.ceil(calcLbsHour(this.cust_hour[i - hour_open], this.lbs_ave));
-      this.total_hour[i - hour_open] = calcTotalHour(this.cust_hour[i - hour_open], this.lbs_hour[i - hour_open]);
-    }
-  }
-}
-
-
-var loc_slu = {
-  customer_min: 14,
-  customer_max: 55,
-  cups_ave: 1.2,
-  lbs_ave: 3.7,
-  cust_hour: [''],
-  cup_hour: [''],
-  cup_hour_lb: [''],
-  lbs_hour: [''],
-  total_hour: [''],
-  getCals: function() {
-    for (i = hour_open; i < hour_close; i++) {
-      this.cust_hour[i - hour_open] = calcCustHour(this.customer_min, this.customer_max);
-      this.cup_hour[i - hour_open] = Math.ceil(calcCupHour(this.cust_hour[i - hour_open], this.cups_ave));
-      this.cup_hour_lb[i - hour_open] = Math.ceil(this.cup_hour[i - hour_open] / 20);
-      this.lbs_hour[i - hour_open] = Math.ceil(calcLbsHour(this.cust_hour[i - hour_open], this.lbs_ave));
-      this.total_hour[i - hour_open] = calcTotalHour(this.cust_hour[i - hour_open], this.lbs_hour[i - hour_open]);
-    }
-  }
-}
-
-
-var loc_sea = {
-  customer_min: 14,
-  customer_max: 55,
-  cups_ave: 1.2,
-  lbs_ave: 3.7,
-  cust_hour: [''],
-  cup_hour: [''],
-  cup_hour_lb: [''],
-  lbs_hour: [''],
-  total_hour: [''],
-  //   says: function() {
-  //     console.log('QUACK!!!');
-  //   }
-  getCals: function() {
-    for (i = hour_open; i < hour_close; i++) {
-      this.cust_hour[i - hour_open] = calcCustHour(this.customer_min, this.customer_max);
-      this.cup_hour[i - hour_open] = Math.ceil(calcCupHour(this.cust_hour[i - hour_open], this.cups_ave));
-      this.cup_hour_lb[i - hour_open] = Math.ceil(this.cup_hour[i - hour_open] / 20);
-      this.lbs_hour[i - hour_open] = Math.ceil(calcLbsHour(this.cust_hour[i - hour_open], this.lbs_ave));
-      this.total_hour[i - hour_open] = calcTotalHour(this.cust_hour[i - hour_open], this.lbs_hour[i - hour_open]);
-    }
-  }
-}
-
-
-var loc_web = {
-  customer_min: 14,
-  customer_max: 55,
-  cups_ave: 1.2,
-  lbs_ave: 3.7,
-  cust_hour: [''],
-  cup_hour: [''],
-  cup_hour_lb: [''],
-  lbs_hour: [''],
-  total_hour: [''],
-  //   says: function() {
-  //     console.log('QUACK!!!');
-  //   }
-  getCals: function() {
-    for (i = hour_open; i < hour_close; i++) {
-      this.cust_hour[i - hour_open] = calcCustHour(this.customer_min, this.customer_max);
-      this.cup_hour[i - hour_open] = Math.ceil(calcCupHour(this.cust_hour[i - hour_open], this.cups_ave));
-      this.cup_hour_lb[i - hour_open] = Math.ceil(this.cup_hour[i - hour_open] / 20);
-      this.lbs_hour[i - hour_open] = Math.ceil(calcLbsHour(this.cust_hour[i - hour_open], this.lbs_ave));
-      this.total_hour[i - hour_open] = calcTotalHour(this.cust_hour[i - hour_open], this.lbs_hour[i - hour_open]);
-    }
-  }
-}
-
-
-loc_ppm.getCals();
-loc_chl.getCals();
-loc_spl.getCals();
-loc_slu.getCals();
-loc_sea.getCals();
-loc_web.getCals();
-
-var data_ppm = [hours, loc_ppm.total_hour, loc_ppm.cust_hour, loc_ppm.cup_hour, loc_ppm.lbs_hour];
-var data_chl = [hours, loc_chl.total_hour, loc_chl.cust_hour, loc_chl.cup_hour, loc_chl.lbs_hour];
-var data_spl = [hours, loc_spl.total_hour, loc_spl.cust_hour, loc_spl.cup_hour, loc_spl.lbs_hour];
-var data_slu = [hours, loc_slu.total_hour, loc_slu.cust_hour, loc_slu.cup_hour, loc_slu.lbs_hour];
-var data_sea = [hours, loc_sea.total_hour, loc_sea.cust_hour, loc_sea.cup_hour, loc_sea.lbs_hour];
-var data_web = [hours, loc_web.total_hour, loc_web.cust_hour, loc_web.cup_hour, loc_web.lbs_hour];
-var data_loc = [data_ppm, data_chl, data_spl, data_slu, data_sea, data_web];
-
-
-var ppm_ul = document.createElement('ul');
-ppm_ul.textContent = ('Pike\'s Place Market');
-document.body.appendChild(ppm_ul);
-for (i = hour_open; i < hour_close; i++) {
-  var ppm_li = document.createElement('li');
-  ppm_li.textContent = (hours[i - hour_open] + ': ' + loc_ppm.total_hour[i - hour_open] + ' [' + loc_ppm.cust_hour[i - hour_open] + ' customers, ')
-  ppm_li.textContent += (loc_ppm.cup_hour[i - hour_open] + ' cups (' + loc_ppm.cup_hour_lb[i - hour_open] + ' lbs), ' + loc_ppm.lbs_hour[i - hour_open] + ' lbs to-go]');
-  ppm_ul.appendChild(ppm_li);
-}
-
-
-var ppm_ul = document.createElement('ul');
-ppm_ul.textContent = ('Capitol Hill');
-document.body.appendChild(ppm_ul);
-for (i = hour_open; i < hour_close; i++) {
-  var ppm_li = document.createElement('li');
-  ppm_li.textContent = (hours[i - hour_open] + ': ' + loc_chl.total_hour[i - hour_open] + ' [' + loc_chl.cust_hour[i - hour_open] + ' customers, ')
-  ppm_li.textContent += (loc_chl.cup_hour[i - hour_open] + ' cups (' + loc_chl.cup_hour_lb[i - hour_open] + ' lbs), ' + loc_chl.lbs_hour[i - hour_open] + ' lbs to-go]');
-  ppm_ul.appendChild(ppm_li);
-}
-
-
-var ppm_ul = document.createElement('ul');
-ppm_ul.textContent = ('Seattle Public Library');
-document.body.appendChild(ppm_ul);
-for (i = hour_open; i < hour_close; i++) {
-  var ppm_li = document.createElement('li');
-  ppm_li.textContent = (hours[i - hour_open] + ': ' + loc_spl.total_hour[i - hour_open] + ' [' + loc_spl.cust_hour[i - hour_open] + ' customers, ')
-  ppm_li.textContent += (loc_spl.cup_hour[i - hour_open] + ' cups (' + loc_spl.cup_hour_lb[i - hour_open] + ' lbs), ' + loc_spl.lbs_hour[i - hour_open] + ' lbs to-go]');
-  ppm_ul.appendChild(ppm_li);
-}
-
-
-var ppm_ul = document.createElement('ul');
-ppm_ul.textContent = ('South Lake Union');
-document.body.appendChild(ppm_ul);
-for (i = hour_open; i < hour_close; i++) {
-  var ppm_li = document.createElement('li');
-  ppm_li.textContent = (hours[i - hour_open] + ': ' + loc_slu.total_hour[i - hour_open] + ' [' + loc_slu.cust_hour[i - hour_open] + ' customers, ')
-  ppm_li.textContent += (loc_slu.cup_hour[i - hour_open] + ' cups (' + loc_slu.cup_hour_lb[i - hour_open] + ' lbs), ' + loc_slu.lbs_hour[i - hour_open] + ' lbs to-go]');
-  ppm_ul.appendChild(ppm_li);
-}
-
-
-var ppm_ul = document.createElement('ul');
-ppm_ul.textContent = ('Sea-Tac Airport');
-document.body.appendChild(ppm_ul);
-for (i = hour_open; i < hour_close; i++) {
-  var ppm_li = document.createElement('li');
-  ppm_li.textContent = (hours[i - hour_open] + ': ' + loc_sea.total_hour[i - hour_open] + ' [' + loc_sea.cust_hour[i - hour_open] + ' customers, ')
-  ppm_li.textContent += (loc_sea.cup_hour[i - hour_open] + ' cups (' + loc_sea.cup_hour_lb[i - hour_open] + ' lbs), ' + loc_sea.lbs_hour[i - hour_open] + ' lbs to-go]');
-  ppm_ul.appendChild(ppm_li);
-}
-
-
-var ppm_ul = document.createElement('ul');
-ppm_ul.textContent = ('Website Sales');
-document.body.appendChild(ppm_ul);
-for (i = hour_open; i < hour_close; i++) {
-  var ppm_li = document.createElement('li');
-  ppm_li.textContent = (hours[i - hour_open] + ': ' + loc_web.total_hour[i - hour_open] + ' [' + loc_web.cust_hour[i - hour_open] + ' customers, ')
-  ppm_li.textContent += (loc_web.cup_hour[i - hour_open] + ' cups (' + loc_web.cup_hour_lb[i - hour_open] + ' lbs), ' + loc_web.lbs_hour[i - hour_open] + ' lbs to-go]');
-  ppm_ul.appendChild(ppm_li);
-}
-
-
+// some loops to create and fill tables.  array provides values for headers.
 var columns = [
   'Hour',
   'Total lbs.',
   'Customers/Hour',
   'Cups/Hour',
+  'Cup/hour (lbs)',
   'lbs./Hour'
 ];
-
-for (i = 0; i < data_loc.length; i++) {
+// loop that creates and populates table.
+for (var i = 0; i < data_loc.length; i++) {
   var loc_tbl = document.createElement('p');
   document.body.appendChild(loc_tbl);
   var loc_tbl_header = document.createElement('h3');
-  loc_tbl_header.textContent = locations[i] + ' Estimated Sales:';
+  loc_tbl_header.textContent = data_location[i].loc_name + ' Estimated Sales:';
   loc_tbl.appendChild(loc_tbl_header);
   // create and fill table
   var tbl = document.createElement('table');
   loc_tbl.appendChild(tbl);
-  // document.body.appendChild(tbl);
 
-    // create and fill table header info.
-  for (j = 0; j < columns.length; j++) {
+  // create and fill table header info.
+  for (var j = 0; j < columns.length; j++) {
     var tbl_head = function() {
       var head = document.createElement('th');
       head.textContent = columns[j];
@@ -265,13 +113,18 @@ for (i = 0; i < data_loc.length; i++) {
   }
 
   // create and fill table rows.
-  for (j = hour_open; j < hour_close; j++) {
+  for (var j = data_time.hour_open; j < data_time.hour_close; j++) {
     var row = document.createElement('tr');
     tbl.appendChild(row);
 
-    for (k = 0; k < data_loc[i].length; k++){  // fill table rows.
+    for (var k = 0; k < data_loc[i].length; k++){  // fill table rows.
       var td = document.createElement('td');
-      td.textContent = data_loc[i][k][j - hour_open];
+      if (typeof(data_loc[i][k][j - data_time.hour_open]) !== 'string') {
+        td.textContent = (Math.round(data_loc[i][k][j - data_time.hour_open] * 10 ) / 10);
+      }
+      else {
+        td.textContent = data_loc[i][k][j - data_time.hour_open];
+      }
       row.appendChild(td);
     }
   }
@@ -288,32 +141,14 @@ function calcCupHour(cust_hour, cup_ave) {
   return (cust_hour * cup_ave);
 }
 
+function calcCupHourlbs(cupHour) {
+  return (cupHour / 20);
+}
+
 function calcLbsHour(cust_hour, lbs_ave) {
   return (cust_hour * lbs_ave);
 }
 
-function calcTotalHour(cup_hour, lbs_hour) {
-  return Math.ceil((cup_hour) / 20 + lbs_hour )
+function calcTotalHour(cup_hour_lbs, lbs_hour) {
+  return (cup_hour_lbs + lbs_hour);
 }
-
-
-// example object literal
-//
-// var duck = {
-//   material:  'rubber',
-//   color: 'yellow',
-//   squeek: false,
-//   favorite_foods: ['duckweed', 'peanut butter', 'children'],
-//   // call says function by duck.says
-//   says: function() {
-//     console.log('QUACK!!!');
-//   }
-// }
-//
-// var h1El = document.createElement('h1');  // CREATE VARIABLE
-// h1El.textContent = duck.color;           // ASSIGN VARIABLE CONTENT
-// document.body.appendChild(h1El);        // ADD ELEMENT TO DOCUMENT / PAGE
-//
-// var paragramEl = document.createElement('p');   // CREATE VARIABLE
-// paragramEl.textContent = duck.favorite_foods;  // ASSGN CONTENT
-// document.body.appendChild(paragramEl);        // ADD TO DOCUMENT / PAGE
