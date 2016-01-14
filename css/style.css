@@ -5,8 +5,11 @@ table, th, td {
   border-style: solid;
   border-color: black;
   text-align: center;
+  /*border-collapse: collapse;*/
 }
 
 th, td {
   width: 150px;
+  /*padding: 0.25%;*/
+  margin: 0px;
 }

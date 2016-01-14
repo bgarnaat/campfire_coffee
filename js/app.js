@@ -92,26 +92,37 @@ var columns = [
   'Cup/hour (lbs)',
   'lbs./Hour'
 ];
-// loop that creates and populates table.
+// loop that creates and populates table.  <p> added to isolate and space out tables.
 for (var i = 0; i < data_loc.length; i++) {
   var loc_tbl = document.createElement('p');
   document.body.appendChild(loc_tbl);
-  var loc_tbl_header = document.createElement('h3');
-  loc_tbl_header.textContent = data_location[i].loc_name + ' Estimated Sales:';
-  loc_tbl.appendChild(loc_tbl_header);
   // create and fill table
   var tbl = document.createElement('table');
   loc_tbl.appendChild(tbl);
 
+  var loc_tbl_header = document.createElement('thead');
+  tbl.appendChild(loc_tbl_header);
+
+  var th_r1 = document.createElement('tr');
+  loc_tbl_header.appendChild(th_r1);
+  var th_r1_d1 = document.createElement('th');
+  th_r1_d1.textContent = data_location[i].loc_name + ' Estimated Sales:';
+  th_r1_d1.colSpan=columns.length;
+  console.log(th_r1_d1);
+  th_r1.appendChild(th_r1_d1);
+
+  var th_r2 = document.createElement('tr');
+  loc_tbl_header.appendChild(th_r2);
   // create and fill table header info.
   for (var j = 0; j < columns.length; j++) {
     var tbl_head = function() {
-      var head = document.createElement('th');
-      head.textContent = columns[j];
-      tbl.appendChild(head);
+      var head_r2 = document.createElement('th');
+      head_r2.textContent = columns[j];
+      th_r2.appendChild(head_r2);
     }();
   }
 
+  var tb = document.createElement('tbody');
   // create and fill table rows.
   for (var j = data_time.hour_open; j < data_time.hour_close; j++) {
     var row = document.createElement('tr');
