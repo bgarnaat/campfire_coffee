@@ -5,6 +5,31 @@
     <title></title>
   </head>
   <body>
+    <section>
+      <form id="add_new_location">
+      <fieldset>
+        <legend>New Store Entry</legend>
+          <table>
+            <tr>
+              <th><label for="input_name">Store Location: </label></th>
+              <th><label for="input_abbr">Location Abbreviation</label></th>
+              <th><label for="input_min">Minimum Cust:</label></th>
+              <th><label for="input_max">Maximum Cust:</label></th>
+              <th><label for="input_ave_cups">Avg Cups/Customer:</label></th>
+              <th><label for="input_ave_lbs">Avg Lbs/Customer:</label></th>
+            </tr>
+            <tr>
+              <td><input type="text" name="input_name"size="35"></td>
+              <td><input type="text" name="input_abbr" size="3"></td>
+              <td><input type="text" name="input_min" size="10"></td>
+              <td><input type="text" name="input_max" size="10"></td>
+              <td><input type="text" name="input_ave_cups" size="5"></td>
+              <td><input type="text" name="input_ave_lbs" size="5"></td>
+            </tr>
+        <button id="submit_new_location" type="submit">Create New Location</button>
+      </fieldset>
+    </form>
+    </section>
     <script type="text/javascript" src=js/app.js></script>
   </body>
 </html>
