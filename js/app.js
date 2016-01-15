@@ -1,6 +1,8 @@
 // JavaScript file
 'use strict';
 
+var counter_parent = 0;
+var counter_child = 0;
 
 var data = {
   names: ['Pike\'s Place Market', 'Capitol Hill', 'Seattle Public Library', 'South Lake Union', 'Sea-Tac Airport', 'Website'],
@@ -37,12 +39,32 @@ var data_time = {
       } else if (i === 12) {
         data_time.hours[j] = (i + ' noon');
       } else {
-        data_time.hours[j] = (i + ':00pm');
+        data_time.hours[j] = ((i - 12) + ':00pm');
       }
     }
   }
 }
 data_time.getHours();  // call function to generate hours
+
+
+// CREATE A TABLE PLACEHOLDER TO STORE SUMMARY DATA FOR ALL STORES (TOTAL SALES PER DAY)
+var tbl_summary_p = document.createElement('p');
+document.body.appendChild(tbl_summary_p);
+var tbl_summary = document.createElement('table');
+tbl_summary_p.appendChild(tbl_summary);
+var tbl_sum_th_r = document.createElement('tr');
+tbl_summary.appendChild(tbl_sum_th_r);
+var tbl_sum_th_name = document.createElement('th');
+tbl_sum_th_name.textContent = 'Location';
+tbl_sum_th_r.appendChild(tbl_sum_th_name);
+for (var i = 0; i < data_time.hours.length; i++) {
+  var tbl_sum_th = document.createElement('th');
+  tbl_sum_th.textContent = data_time.hours[i];
+  tbl_sum_th_r.appendChild(tbl_sum_th);
+}
+
+
+
 
 // declare array object to hold instances of location objects.  This will allow scalability.
 var data_location = [];
@@ -64,6 +86,7 @@ function Location(name, abbr, min, max, cup_ave, lbs_ave) {
   this.cup_hour_lb = [];
   this.lbs_hour = [];
   this.total_hour = [];
+  this.total_day = 0;
   this.data_loc = [data_time.hours, this.total_hour, this.cust_hour, this.cup_hour, this. cup_hour_lb, this.lbs_hour];
   this.getCalcs = function() { // call functions declared at end of file.
     for (var i = data_time.hour_open; i < data_time.hour_close; i++) {
@@ -74,15 +97,17 @@ function Location(name, abbr, min, max, cup_ave, lbs_ave) {
       this.cup_hour_lb.push(calcCupHourlbs(this.cup_hour[j]));
       this.lbs_hour.push(calcLbsHour(this.cust_hour[j], this.lbs_ave));
       this.total_hour.push(calcTotalHour(this.cup_hour_lb[j], this.lbs_hour[j]));
+      this.total_day += this.total_hour[j];
     }
   };
   this.getCalcs();
-  renderTable(this.loc_name, this.data_loc);
+  addTblSumRow(tbl_summary, this.loc_name, this.total_hour);
+  renderTable(this.loc_name, this.data_loc, this.total_day);
 }
 
 
 // loop that creates and populates table.  <p> added to isolate and space out tables.
-function renderTable(name, data_obj) {
+function renderTable(name, data_obj, total_day) {
   var loc_tbl = document.createElement('p');
   document.body.appendChild(loc_tbl);
   // create and fill table
@@ -127,6 +152,17 @@ function renderTable(name, data_obj) {
       row.appendChild(td);
     }
   }
+
+  var tf = document.createElement('tfoot');
+  tbl.appendChild(tf);
+  var tf_row = document.createElement('tr');
+  tf.appendChild(tf_row);
+  var tf_td_1 = document.createElement('td');
+  tf_td_1.textContent = 'Total';
+  tf_row.appendChild(tf_td_1);
+  var tf_td_2 = document.createElement('td');
+  tf_td_2.textContent = total_day.toFixed(2);
+  tf_row.appendChild(tf_td_2);
 }
 
 
@@ -182,4 +218,35 @@ function calcLbsHour(cust_hour, lbs_ave) {
 
 function calcTotalHour(cup_hour_lbs, lbs_hour) {
   return (cup_hour_lbs + lbs_hour);
+}
+
+function addTblSumRow(tbl, param_1, param_2) {
+  var tbl_row = document.createElement('tr')
+  tbl.appendChild(tbl_row);
+  var tbl_cell_loc = document.createElement('td');
+  tbl_cell_loc.textContent = param_1;
+  tbl_row.appendChild(tbl_cell_loc);
+  for (var i = 0; i < param_2.length; i++) {
+    var tbl_cell = document.createElement('td')
+    tbl_cell.textContent = param_2[i].toFixed(2);
+    tbl_row.appendChild(tbl_cell);
+  }
+}
+
+
+
+function createParent(el_type, class_name, id_name) {
+  var parent_object = document.createElement(el_type);
+  counter_parent++;
+  if (class_name != '') {
+    parent_object.className += class_name;
+  } else {
+    parent_object.className += ('parent_object ' + counter_parent);
+  }
+  if (class_name != '') {
+    parent_object.id = class_name;
+  } else {
+    parent_object.id = ('parent_object ' + counter_parent);
+  }
+  document.body.appendChild(parent_object);
 }
