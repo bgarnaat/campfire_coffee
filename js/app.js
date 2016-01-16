@@ -1,8 +1,7 @@
 // JavaScript file
 'use strict';
 
-var counter_parent = 0;
-var counter_child = 0;
+var counter_sum_even = 0;
 
 var data = {
   names: ['Pike\'s Place Market', 'Capitol Hill', 'Seattle Public Library', 'South Lake Union', 'Sea-Tac Airport', 'Website'],
@@ -29,17 +28,17 @@ var columns = [
 var data_time = {
   hour_open: 6,  // open at 0600
   hour_close: 21,  // close at 2100
-  hours: [''],
+  hours: [],
 
   getHours: function() {
     for (var i = this.hour_open; i < this.hour_close; i++) {
       var j = i - this.hour_open;
       if (i < 12) {
-        data_time.hours[j] = (i + ':00am');
+        data_time.hours.push(i + ':00am');
       } else if (i === 12) {
-        data_time.hours[j] = (i + ' noon');
+        data_time.hours.push(i + ' noon');
       } else {
-        data_time.hours[j] = ((i - 12) + ':00pm');
+        data_time.hours.push((i - 12) + ':00pm');
       }
     }
   }
@@ -64,13 +63,11 @@ for (var i = 0; i < data_time.hours.length; i++) {
 }
 
 
-
-
 // declare array object to hold instances of location objects.  This will allow scalability.
 var data_location = [];
 for (var i = 0; i < data.names.length; i++) {
   // fomat of data = [data.names, data.name_abbr, data.customer_min, data.customer_max, data.cup_ave, data.lbs_ave]
-  data_location[i] = new Location(data.names[i], data.name_abbr[i], data.customer_min[i], data.customer_max[i], data.cup_ave[i], data.lbs_ave[i]);
+  data_location.push(new Location(data.names[i], data.name_abbr[i], data.customer_min[i], data.customer_max[i], data.cup_ave[i], data.lbs_ave[i]));
 }
 
 
@@ -89,80 +86,80 @@ function Location(name, abbr, min, max, cup_ave, lbs_ave) {
   this.total_day = 0;
   this.data_loc = [data_time.hours, this.total_hour, this.cust_hour, this.cup_hour, this. cup_hour_lb, this.lbs_hour];
   this.getCalcs = function() { // call functions declared at end of file.
-    for (var i = data_time.hour_open; i < data_time.hour_close; i++) {
-      var j = i - data_time.hour_open;  // save some typing for each array index...
-
+    for (var i = 0; i < data_time.hours.length; i++) {
       this.cust_hour.push(calcCustHour(this.customer_min, this.customer_max));
-      this.cup_hour.push(calcCupHour(this.cust_hour[j], this.cups_ave));
-      this.cup_hour_lb.push(calcCupHourlbs(this.cup_hour[j]));
-      this.lbs_hour.push(calcLbsHour(this.cust_hour[j], this.lbs_ave));
-      this.total_hour.push(calcTotalHour(this.cup_hour_lb[j], this.lbs_hour[j]));
-      this.total_day += this.total_hour[j];
+      this.cup_hour.push(calcCupHour(this.cust_hour[i], this.cups_ave));
+      this.cup_hour_lb.push(calcCupHourlbs(this.cup_hour[i]));
+      this.lbs_hour.push(calcLbsHour(this.cust_hour[i], this.lbs_ave));
+      this.total_hour.push(calcTotalHour(this.cup_hour_lb[i], this.lbs_hour[i]));
+      this.total_day += this.total_hour[i];
     }
   };
   this.getCalcs();
   addTblSumRow(tbl_summary, this.loc_name, this.total_hour);
-  renderTable(this.loc_name, this.data_loc, this.total_day);
+  createTable(this.loc_name, this.data_loc, this.total_day);
 }
 
 
-// loop that creates and populates table.  <p> added to isolate and space out tables.
-function renderTable(name, data_obj, total_day) {
-  var loc_tbl = document.createElement('p');
-  document.body.appendChild(loc_tbl);
-  // create and fill table
+// TABLE CREATION FUNCTION
+function createTable(tbl_title, data, total_day) {  // create table with rows/cells
+  var tbl_home = document.createElement('section');
   var tbl = document.createElement('table');
-  loc_tbl.appendChild(tbl);
+  tbl_home.appendChild(tbl);
+  document.body.appendChild(tbl_home);
 
-  var loc_tbl_header = document.createElement('thead');
-  tbl.appendChild(loc_tbl_header);
+  createHeader(tbl, tbl_title, data.length);
 
-  var th_r1 = document.createElement('tr');
-  loc_tbl_header.appendChild(th_r1);
-  var th_r1_d1 = document.createElement('th');
-  th_r1_d1.textContent = name + ' Estimated Sales:';
-  th_r1_d1.colSpan=columns.length;
-  th_r1.appendChild(th_r1_d1);
+  createRow(tbl, 'th', columns, ''); // HEADER ROW
 
-  var th_r2 = document.createElement('tr');
-  loc_tbl_header.appendChild(th_r2);
-  // create and fill table header info.
-  for (var j = 0; j < columns.length; j++) {
-    var tbl_head = function() {
-      var head_r2 = document.createElement('th');
-      head_r2.textContent = columns[j];
-      th_r2.appendChild(head_r2);
-    }();
-  }
+  for (var i = 0; i < data_time.hours.length; i++) {
+    createRow(tbl, 'td', data, i);  // DATA ROWS
+  };
 
-  var tb = document.createElement('tbody');
-  // create and fill table rows.
-  for (var j = data_time.hour_open; j < data_time.hour_close; j++) {
-    var row = document.createElement('tr');
-    tbl.appendChild(row);
+  createFooter(tbl, total_day);
+};
 
-    for (var k = 0; k < data_obj.length; k++){  // fill table rows.
-      var td = document.createElement('td');
-      if (typeof(data_obj[k][j - data_time.hour_open]) !== 'string') {
-        td.textContent = (Math.round(data_obj[k][j - data_time.hour_open] * 10 ) / 10);
-      }
-      else {
-        td.textContent = data_obj[k][j - data_time.hour_open];
-      }
-      row.appendChild(td);
-    }
-  }
+function createHeader(tbl, tbl_title, size) {
+  var tbl_th_r1 = document.createElement('tr');
+  var tbl_th_title = document.createElement('th');
+  tbl_th_title.textContent = tbl_title;
+  tbl_th_title.colSpan=size;
+  tbl_th_r1.appendChild(tbl_th_title);
+  tbl.appendChild(tbl_th_r1);
+}
 
+// function to create row within table (use wtih createTable)
+function createRow(tbl, cell_type, content, i) {
+  var tbl_row = document.createElement('tr');
+  ((i % 2 === 0) && (cell_type === 'td')) ? tbl_row.className='td_even' : tbl_row.className='td_odd';
+  tbl.appendChild(tbl_row);
+
+  for (var j = 0; j < content.length; j++) {
+    createCell(cell_type, tbl_row, content, j, i);
+  };
+}
+
+// function to create table cell (use with createRow)
+function createCell(cell_type, tr, content, j, i) {
+  var td = document.createElement(cell_type);
+  td.textContent = ((typeof(content[j]) === 'object') ? content[j][i] : content[j]);
+  tr.appendChild(td);
+}
+
+function createFooter(tbl, total_day) {
   var tf = document.createElement('tfoot');
-  tbl.appendChild(tf);
-  var tf_row = document.createElement('tr');
-  tf.appendChild(tf_row);
-  var tf_td_1 = document.createElement('td');
-  tf_td_1.textContent = 'Total';
-  tf_row.appendChild(tf_td_1);
-  var tf_td_2 = document.createElement('td');
-  tf_td_2.textContent = total_day.toFixed(2);
-  tf_row.appendChild(tf_td_2);
+    tbl.appendChild(tf);
+
+    createRow(tf, 'td', total_day, 0)
+
+    var tf_row = document.createElement('tr');
+    tf.appendChild(tf_row);
+    var tf_td_1 = document.createElement('td');
+    tf_td_1.textContent = 'Total';
+    tf_row.appendChild(tf_td_1);
+    var tf_td_2 = document.createElement('td');
+    tf_td_2.textContent = total_day.toFixed(2);
+    tf_row.appendChild(tf_td_2);
 }
 
 
@@ -205,15 +202,15 @@ function calcCustHour(min, max) {
 }
 
 function calcCupHour(cust_hour, cup_ave) {
-  return (cust_hour * cup_ave);
+  return Math.ceil(cust_hour * cup_ave);
 }
 
 function calcCupHourlbs(cupHour) {
-  return (cupHour / 20);
+  return Math.ceil(cupHour / 20);
 }
 
 function calcLbsHour(cust_hour, lbs_ave) {
-  return (cust_hour * lbs_ave);
+  return Math.ceil(cust_hour * lbs_ave);
 }
 
 function calcTotalHour(cup_hour_lbs, lbs_hour) {
@@ -221,32 +218,35 @@ function calcTotalHour(cup_hour_lbs, lbs_hour) {
 }
 
 function addTblSumRow(tbl, param_1, param_2) {
+
   var tbl_row = document.createElement('tr')
-  tbl.appendChild(tbl_row);
   var tbl_cell_loc = document.createElement('td');
   tbl_cell_loc.textContent = param_1;
+  tbl_row.class_name = (counter_sum_even % 2 === 0) ? tbl_row.className='td_even' : tbl_row.className='td_odd';  // even/odd for highlight
   tbl_row.appendChild(tbl_cell_loc);
+
   for (var i = 0; i < param_2.length; i++) {
     var tbl_cell = document.createElement('td')
     tbl_cell.textContent = param_2[i].toFixed(2);
     tbl_row.appendChild(tbl_cell);
   }
+  tbl.appendChild(tbl_row);
+  counter_sum_even++; // used to determine even/odd rows
 }
 
-
-
-function createParent(el_type, class_name, id_name) {
-  var parent_object = document.createElement(el_type);
-  counter_parent++;
-  if (class_name != '') {
-    parent_object.className += class_name;
-  } else {
-    parent_object.className += ('parent_object ' + counter_parent);
-  }
-  if (class_name != '') {
-    parent_object.id = class_name;
-  } else {
-    parent_object.id = ('parent_object ' + counter_parent);
-  }
-  document.body.appendChild(parent_object);
-}
+//
+// function createParent(el_type, class_name, id_name) {
+//   var parent_object = document.createElement(el_type);
+//   counter_parent++;
+//   if (class_name != '') {
+//     parent_object.className += class_name;
+//   } else {
+//     parent_object.className += ('parent_object ' + counter_parent);
+//   }
+//   if (class_name != '') {
+//     parent_object.id = class_name;
+//   } else {
+//     parent_object.id = ('parent_object ' + counter_parent);
+//   }
+//   document.body.appendChild(parent_object);
+// }
