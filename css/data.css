@@ -1,5 +1,10 @@
 /* CSS file */
 
+section {
+  margin: 10px;
+  padding: 10px;
+}
+
 table, th, td {
   border: 1px;
   border-style: solid;
@@ -14,4 +19,6 @@ th, td {
   margin: 0px;
 }
 
-tfoot
+.td_even {
+  background-color: lightgrey;
+}
