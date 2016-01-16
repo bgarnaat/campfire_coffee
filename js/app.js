@@ -47,13 +47,17 @@ data_time.getHours();  // call function to generate hours
 
 
 // CREATE A TABLE PLACEHOLDER TO STORE SUMMARY DATA FOR ALL STORES (TOTAL SALES PER DAY)
-var tbl_summary_p = document.createElement('p');
-document.body.appendChild(tbl_summary_p);
 var tbl_summary = document.createElement('table');
-tbl_summary_p.appendChild(tbl_summary);
+document.body.appendChild(tbl_summary);
 var tbl_sum_th_r = document.createElement('tr');
 tbl_summary.appendChild(tbl_sum_th_r);
 var tbl_sum_th_name = document.createElement('th');
+tbl_sum_th_name.textContent = 'Total Daily Sales By Hour';
+tbl_sum_th_name.colSpan=(data_time.hours.length + 1);
+tbl_sum_th_r.appendChild(tbl_sum_th_name);
+tbl_sum_th_r = document.createElement('tr');
+tbl_summary.appendChild(tbl_sum_th_r);
+tbl_sum_th_name = document.createElement('th');
 tbl_sum_th_name.textContent = 'Location';
 tbl_sum_th_r.appendChild(tbl_sum_th_name);
 for (var i = 0; i < data_time.hours.length; i++) {

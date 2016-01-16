@@ -7,8 +7,9 @@ body {
   background-color: black;
   background-image: url(../img/campsite-tent-night.jpg);
   background-repeat: no-repeat;
-  background-size: 150%;
-  background-position: top;
+  background-size: 100%;
+  background-position: 0px 125px;
+  background-attachment: fixed;
   margin: 0px;
   color: lightgrey;
 }
@@ -17,12 +18,14 @@ header {
   width: 100%;
   height: 125px;
   background-color: #150436;
-  opacity: 1;
   color: lightgrey;
   position: fixed;
   z-index: 2;
 }
 
+.header_img_and_hgroup {
+  display: inline;
+}
 
 hgroup {
   display: inline-block;
@@ -43,7 +46,9 @@ nav {
   height: 75px;
   width: 75px;
   margin: 10px;
+  border-radius: 10px;
   display: inline-block;
+  float: left;
 }
 
 .nav_item {
@@ -111,8 +116,6 @@ a {
   padding: 2%;
   display: inline-block;
   text-align: justify;
-  /*background-color: lightgrey;
-  opacity: 0.8;*/
   background: rgba(150, 150, 150, 0.8);
   border-radius: 50px;
 }
@@ -121,6 +124,7 @@ a {
   color: black;
   display: inline;
   margin: 5%;
+  line-height: 1.3em;
 }
 
 .img_text_l {
