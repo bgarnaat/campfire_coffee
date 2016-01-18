@@ -1,9 +1,15 @@
 this is a README file.
 
+# Link to deployed public page:  http://bgarnaat.github.io/campfire_coffee/
+# Link to corporate data page:  http://bgarnaat.github.io/campfire_coffee/data.html
+
+# pair programming partner:  Aimnee Soucy
+
 # Public facing page (index.html) is designed to be the landing pad for customers and potential customers.
 # this page is designed to invoke a sense of camping and the smell of campfire smoke along with fresh roasted campfire coffee.
 
 # data.html presents estimated sales data for each location.  Can be hooked up to database for more accurate data.
+
 
 CHANGELOG:
 
