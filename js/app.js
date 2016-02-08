@@ -221,17 +221,17 @@ function calcTotalHour(cup_hour_lbs, lbs_hour) {
   return (cup_hour_lbs + lbs_hour);
 }
 
-function addTblSumRow(tbl, param_1, param_2) {
+function addTblSumRow(tbl, content_loc, content_cell) {
 
   var tbl_row = document.createElement('tr')
   var tbl_cell_loc = document.createElement('td');
-  tbl_cell_loc.textContent = param_1;
+  tbl_cell_loc.textContent = content_loc;
   tbl_row.class_name = (counter_sum_even % 2 === 0) ? tbl_row.className='td_even' : tbl_row.className='td_odd';  // even/odd for highlight
   tbl_row.appendChild(tbl_cell_loc);
 
-  for (var i = 0; i < param_2.length; i++) {
+  for (var i = 0; i < content_cell.length; i++) {
     var tbl_cell = document.createElement('td')
-    tbl_cell.textContent = param_2[i].toFixed(2);
+    tbl_cell.textContent = content_cell[i].toFixed(2);
     tbl_row.appendChild(tbl_cell);
   }
   tbl.appendChild(tbl_row);

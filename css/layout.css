@@ -1,0 +1,50 @@
+.header_img_and_hgroup {
+  float: left;
+  padding: 0 0 .2em 1em;
+  max-width: 80%;
+}
+hgroup > h1, hgroup > h4 {
+  margin: 5px;
+}
+.logo {
+  float: left;
+}
+.nav_item {
+  background: #333;
+  border-radius: 15px;
+}
+.nav_item a {
+  color: #aaa;
+}
+.img_text_r {
+  float: right;
+  width: 50%;
+}
+.img_text_l {
+  float: left;
+  width: 50%
+}
+
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+@media only screen and (min-width: 640px) {
+  .header_img_and_hgroup {
+    padding: 0px 0px 10px 0;
+    margin: 10px;
+    float: none;
+  }
+  .nav_item {
+    border-radius: 15px 15px 0px 0px;
+  }
+  .img_text_l {
+    width: auto;
+  }
+  .img_text_r {
+    width: auto;
+  }
+}
